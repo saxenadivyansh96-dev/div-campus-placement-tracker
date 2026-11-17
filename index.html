@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campus Placement Tracker</title>
+  <script>
+    /* Apply the saved theme before the page paints (light is the default) */
+    try { if (localStorage.getItem('cpt_theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="header-row">
+        <div>
+          <h1>Campus Placement Tracker</h1>
+          <p>Track your applications and see which roles turn into interview calls.</p>
+        </div>
+        <button type="button" id="themeToggle" class="btn btn-secondary theme-toggle" aria-label="Switch to dark mode" title="Switch to dark mode">🌙</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" id="main" tabindex="-1">
+    <div id="demoBanner" class="banner" hidden>
+      <span><strong>Demo data:</strong> sample applications are labelled "Demo". Your own records are kept when you clear them.</span>
+      <button type="button" id="clearDemoBtn" class="btn btn-secondary">Clear demo data</button>
+    </div>
+
+    <!-- ===== Dashboard ===== -->
+    <section aria-labelledby="dashTitle">
+      <h2 id="dashTitle">Dashboard</h2>
+      <p id="filterNotice" class="filter-notice" role="status" hidden></p>
+
+      <div class="cards">
+        <div class="card"><span class="card-label">Total Applications</span><span class="card-value" id="mTotal">0</span></div>
+        <div class="card"><span class="card-label">Interviews Reached</span><span class="card-value" id="mInterviews">0</span></div>
+        <div class="card"><span class="card-label">Offers Received</span><span class="card-value" id="mOffers">0</span></div>
+        <div class="card"><span class="card-label">Interview Rate</span><span class="card-value" id="mRate">0%</span></div>
+      </div>
+
+      <div class="charts">
+        <figure class="panel">
+          <figcaption>Current status</figcaption>
+          <div class="chart-box" id="statusBox"><canvas id="statusChart" aria-label="Doughnut chart of applications by status" role="img"></canvas><p class="chart-empty">No data to chart.</p></div>
+        </figure>
+        <figure class="panel">
+          <figcaption>Applications vs interviews by role</figcaption>
+          <div class="chart-box" id="roleBox"><canvas id="roleChart" aria-label="Bar chart of applications and interviews reached by role" role="img"></canvas><p class="chart-empty">No data to chart.</p></div>
+        </figure>
+      </div>
+      <p id="chartNotice" class="hint" hidden>Charts could not load (Chart.js CDN is unreachable). The rest of the app still works.</p>
+
+      <div class="panel insights">
+        <h3>Insights</h3>
+        <ul id="insightList"></ul>
+      </div>
+    </section>
+
+    <!-- ===== Form ===== -->
+    <section class="panel" aria-labelledby="formTitle">
+      <h2 id="formTitle">Add application</h2>
+      <form id="appForm" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="company">Company name</label>
+            <input type="text" id="company" maxlength="60" autocomplete="off" aria-describedby="companyErr">
+            <p class="error" id="companyErr" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="role">Job role</label>
+            <input type="text" id="role" maxlength="60" list="roleOptions" autocomplete="off" aria-describedby="roleErr">
+            <datalist id="roleOptions"></datalist>
+            <p class="error" id="roleErr" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="date">Application date</label>
+            <input type="date" id="date" aria-describedby="dateErr">
+            <p class="error" id="dateErr" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="status">Status</label>
+            <select id="status" aria-describedby="statusErr"></select>
+            <p class="error" id="statusErr" role="alert"></p>
+          </div>
+        </div>
+        <div class="check">
+          <input type="checkbox" id="reached">
+          <label for="reached">Reached interview stage</label>
+        </div>
+        <p class="hint">Ticked automatically for Interview Scheduled, Interviewed and Offer Received, and it stays ticked if the application is later Rejected. You can correct it here.</p>
+        <div class="form-actions">
+          <button type="submit" class="btn" id="saveBtn">Add application</button>
+          <button type="button" class="btn btn-secondary" id="cancelEditBtn" hidden>Cancel edit</button>
+        </div>
+        <p id="formMsg" class="success" role="status"></p>
+      </form>
+    </section>
+
+    <!-- ===== List ===== -->
+    <section aria-labelledby="listTitle">
+      <h2 id="listTitle">Applications</h2>
+      <div class="filters">
+        <div class="field"><label for="searchInput">Search company or role</label><input type="search" id="searchInput" placeholder="e.g. Razorpay"></div>
+        <div class="field"><label for="statusFilter">Status</label><select id="statusFilter"></select></div>
+        <div class="field"><label for="roleFilter">Role</label><select id="roleFilter"></select></div>
+        <button type="button" class="btn btn-secondary" id="clearFiltersBtn">Clear filters</button>
+      </div>
+
+      <div id="emptyState" class="empty" hidden></div>
+
+      <table id="appTable">
+        <thead>
+          <tr><th>Company</th><th>Role</th><th>Applied on</th><th>Status</th><th>Interview stage</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="appBody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="wrap site-footer">Data is saved only in this browser (localStorage).</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
